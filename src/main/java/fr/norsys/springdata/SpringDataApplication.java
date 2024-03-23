@@ -2,6 +2,7 @@ package fr.norsys.springdata;
 
 import fr.norsys.springdata.entities.Person;
 import fr.norsys.springdata.entities.Phone;
+import fr.norsys.springdata.entities.PhoneDetails;
 import fr.norsys.springdata.repository.PersonRepository;
 import fr.norsys.springdata.repository.PhoneRepository;
 import jakarta.transaction.Transactional;
@@ -26,36 +27,22 @@ public class SpringDataApplication implements CommandLineRunner {
 
     @Override
     public void run(String... args) {
-        /**
-         * Whenever a bidirectional association is formed,
-         * the application developer must make sure both sides are in-sync at all times.
-         */
-        Person person = new Person();
-        person.setName("John Doe");
+
+        PhoneDetails phoneDetails = new PhoneDetails();
+        phoneDetails.setProvider("provider");
+        phoneDetails.setTechnology("technology");
+        phoneDetails.setFrequency("frequency");
 
         Phone phone = new Phone();
         phone.setNumber("1234567890");
-        phone.setPerson(person);
-
-        Phone phone2 = new Phone();
-        phone2.setNumber("0987654321");
-        phone2.setPerson(person);
+        phone.setPhoneDetails(phoneDetails);
 
 
-        person.getPhones().add(phone);
-        person.getPhones().add(phone2);
+        phoneRepository.save(phone);
 
-        // or you can use the addPhone method in the Person class
-        // person.addPhone(phone);
-        // person.addPhone(phone2);
+        phoneRepository.findAll().forEach(System.out::println);
 
-        personRepository.save(person);
 
-        personRepository.findAll().forEach(p -> {
-            System.out.println(p.getName());
-
-        });
-//        phoneRepository.findAll().forEach(System.out::println);
 
 
 

@@ -2,10 +2,16 @@ package fr.norsys.springdata.entities;
 
 
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 import org.hibernate.annotations.NaturalId;
 
 import java.util.Objects;
 
+@Getter
+@Setter
+@ToString
 @Entity(name = "Phone")
 public class Phone {
 
@@ -18,35 +24,13 @@ public class Phone {
     private String number;
 
     @ManyToOne
+
     private Person person;
 
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @JoinColumn(name = "details_id")
+    private PhoneDetails phoneDetails;
 
-    public Long getId() {
-        return id;
-    }
-
-    public Phone setId(Long id) {
-        this.id = id;
-        return this;
-    }
-
-    public String getNumber() {
-        return number;
-    }
-
-    public Phone setNumber(String number) {
-        this.number = number;
-        return this;
-    }
-
-    public Person getPerson() {
-        return person;
-    }
-
-    public Phone setPerson(Person person) {
-        this.person = person;
-        return this;
-    }
 
     @Override
     public boolean equals(Object o) {
@@ -63,14 +47,5 @@ public class Phone {
     @Override
     public int hashCode() {
         return Objects.hash(number);
-    }
-
-    @Override
-    public String toString() {
-        return "Phone{" +
-            "id=" + id +
-            ", number='" + number + '\'' +
-            ", person=" + person +
-            '}';
     }
 }
