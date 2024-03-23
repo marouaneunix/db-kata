@@ -21,7 +21,12 @@ public class Person {
         // it resolves B by calling a.getB().getName() while you are still in the @Transaction.
         // Hibernate can now make a second request to the database to fetch B,
         // and now a.getB() is really of type B and stays that way, so you can use it outside the persistence context.
-    @OneToMany( cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @OneToMany(
+        cascade = CascadeType.ALL,
+        orphanRemoval = true,
+        fetch = FetchType.LAZY,
+        mappedBy = "person"
+    )
     private List<Phone> phones = new ArrayList<>();
 
     public Long getId() {
@@ -49,6 +54,16 @@ public class Person {
     public Person setPhones(List<Phone> phones) {
         this.phones = phones;
         return this;
+    }
+
+    public void addPhone(Phone phone) {
+        phones.add(phone);
+        phone.setPerson(this);
+    }
+
+    public void removePhone(Phone phone) {
+        phones.remove(phone);
+        phone.setPerson(null);
     }
 
     @Override

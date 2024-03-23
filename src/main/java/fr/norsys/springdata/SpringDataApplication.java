@@ -26,31 +26,38 @@ public class SpringDataApplication implements CommandLineRunner {
 
     @Override
     public void run(String... args) {
-
+        /**
+         * Whenever a bidirectional association is formed,
+         * the application developer must make sure both sides are in-sync at all times.
+         */
+        Person person = new Person();
+        person.setName("John Doe");
 
         Phone phone = new Phone();
         phone.setNumber("1234567890");
+        phone.setPerson(person);
 
         Phone phone2 = new Phone();
         phone2.setNumber("0987654321");
+        phone2.setPerson(person);
 
-        Person person = new Person();
-        person.setName("John Doe");
+
         person.getPhones().add(phone);
         person.getPhones().add(phone2);
 
-        this.personRepository.save(person);
+        // or you can use the addPhone method in the Person class
+        // person.addPhone(phone);
+        // person.addPhone(phone2);
 
-        // delete phone
-        person.getPhones().remove(phone);
-        this.personRepository.save(person);
+        personRepository.save(person);
 
-        personRepository.findAll().forEach( p -> {
-            System.out.println(p);
+        personRepository.findAll().forEach(p -> {
+            System.out.println(p.getName());
+
         });
+//        phoneRepository.findAll().forEach(System.out::println);
 
-        // you can't delete phone directly because it's still associated with the person
-        // this.phoneRepository.delete(phone2);
+
 
     }
 }
