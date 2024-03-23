@@ -35,16 +35,19 @@ public class SpringDataApplication implements CommandLineRunner {
 
         Phone phone = new Phone();
         phone.setNumber("1234567890");
-        phone.setPhoneDetails(phoneDetails);
+        phone.addDetails(phoneDetails);
 
 
         phoneRepository.save(phone);
 
+        System.out.println("***** Phone After ADD ******");
+
         phoneRepository.findAll().forEach(System.out::println);
 
+        phone.removeDetails();
 
-
-
+        System.out.println("***** Phone After Delete *****");
+        phoneRepository.findAll().forEach(System.out::println);
 
     }
 }

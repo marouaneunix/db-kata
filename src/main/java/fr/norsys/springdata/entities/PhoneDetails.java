@@ -5,8 +5,8 @@ import lombok.*;
 
 @Getter
 @Setter
-@ToString
 @Entity
+@ToString(exclude = "phone")
 @Table(name = "phone_details")
 public class PhoneDetails {
 
@@ -16,5 +16,9 @@ public class PhoneDetails {
     private String provider;
     private String technology;
     private String frequency;
+
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "phone_id")
+    private Phone phone;
 
 }

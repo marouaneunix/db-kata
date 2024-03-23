@@ -27,8 +27,12 @@ public class Phone {
 
     private Person person;
 
-    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    @JoinColumn(name = "details_id")
+    @OneToOne(
+        mappedBy = "phone",
+        cascade = CascadeType.ALL,
+        orphanRemoval = true,
+        fetch = FetchType.LAZY
+    )
     private PhoneDetails phoneDetails;
 
 
@@ -47,5 +51,19 @@ public class Phone {
     @Override
     public int hashCode() {
         return Objects.hash(number);
+    }
+
+    public void addDetails(PhoneDetails phoneDetails) {
+        this.phoneDetails = phoneDetails;
+        this.phoneDetails.setPhone(this);
+    }
+
+    public void removeDetails() {
+        if(this.phoneDetails == null) {
+            return;
+        }
+        this.phoneDetails.setPhone(null);
+        this.phoneDetails = null;
+
     }
 }
