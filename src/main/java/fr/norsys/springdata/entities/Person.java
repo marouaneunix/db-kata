@@ -2,6 +2,7 @@ package fr.norsys.springdata.entities;
 
 
 import jakarta.persistence.*;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -12,6 +13,7 @@ import java.util.List;
 @Getter
 @Setter
 @ToString
+@EqualsAndHashCode
 @Entity
 public class Person {
 
@@ -46,5 +48,15 @@ public class Person {
     public void removePhone(Phone phone) {
         phones.remove(phone);
         phone.setPerson(null);
+    }
+
+    public void addAddress(Address address) {
+        addresses.add(address);
+        address.getPersons().add(this);
+    }
+
+    public void removeAddress(Address address) {
+        addresses.remove(address);
+        address.getPersons().remove(this);
     }
 }

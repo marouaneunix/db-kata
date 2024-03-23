@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.objenesis.SpringObjenesis;
 
 @SpringBootApplication
 @Transactional
@@ -44,10 +45,10 @@ public class SpringDataApplication implements CommandLineRunner {
         address1.setStreet("street2");
         address1.setNumber("2");
 
-        person.getAddresses().add(address);
+        person.addAddress(address);
 
-        person1.getAddresses().add(address);
-        person1.getAddresses().add(address1);
+        person1.addAddress(address);
+        person1.addAddress(address1);
 
         personRepository.save(person);
         personRepository.save(person1);
@@ -55,9 +56,13 @@ public class SpringDataApplication implements CommandLineRunner {
         personRepository.findAll().forEach(System.out::println);
 
 
-        person.getAddresses().remove(address);
-
+        person.removeAddress(address);
         personRepository.delete(person1);
+
+        /**
+         * If a bidirectional @OneToMany association performs better when removing or changing the order of child elements,
+         * the @ManyToMany relationship cannot benefit from such an optimization because the foreign key side is not in control. To overcome this limitation, the link table must be directly exposed and the @ManyToMany association split into two bidirectional @OneToMany relationships.
+         */
     }
 }
 
