@@ -4,12 +4,14 @@ package fr.norsys.springdata.entities;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @Getter
 @Setter
+@ToString
 @Entity
 public class Person {
 
@@ -32,6 +34,9 @@ public class Person {
         mappedBy = "person"
     )
     private List<Phone> phones = new ArrayList<>();
+
+    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    private List<Address> addresses = new ArrayList<>();
 
     public void addPhone(Phone phone) {
         phones.add(phone);

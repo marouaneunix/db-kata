@@ -1,5 +1,6 @@
 package fr.norsys.springdata;
 
+import fr.norsys.springdata.entities.Address;
 import fr.norsys.springdata.entities.Person;
 import fr.norsys.springdata.entities.Phone;
 import fr.norsys.springdata.entities.PhoneDetails;
@@ -21,6 +22,7 @@ public class SpringDataApplication implements CommandLineRunner {
 
     @Autowired
     private PersonRepository personRepository;
+
     public static void main(String[] args) {
         SpringApplication.run(SpringDataApplication.class, args);
     }
@@ -28,27 +30,34 @@ public class SpringDataApplication implements CommandLineRunner {
     @Override
     public void run(String... args) {
 
-        PhoneDetails phoneDetails = new PhoneDetails();
-        phoneDetails.setProvider("provider");
-        phoneDetails.setTechnology("technology");
-        phoneDetails.setFrequency("frequency");
+        Person person = new Person();
+        person.setName("p1");
 
-        Phone phone = new Phone();
-        phone.setNumber("1234567890");
-        phone.addDetails(phoneDetails);
+        Person person1 = new Person();
+        person.setName("p2");
+
+        Address address = new Address();
+        address.setStreet("street1");
+        address.setNumber("1");
+
+        Address address1 = new Address();
+        address1.setStreet("street2");
+        address1.setNumber("2");
+
+        person.getAddresses().add(address);
+
+        person1.getAddresses().add(address);
+        person1.getAddresses().add(address1);
+
+        personRepository.save(person);
+        personRepository.save(person1);
+
+        personRepository.findAll().forEach(System.out::println);
 
 
-        phoneRepository.save(phone);
+        person.getAddresses().remove(address);
 
-        System.out.println("***** Phone After ADD ******");
-
-        phoneRepository.findAll().forEach(System.out::println);
-
-        phone.removeDetails();
-
-        System.out.println("***** Phone After Delete *****");
-        phoneRepository.findAll().forEach(System.out::println);
-
+        personRepository.delete(person1);
     }
 }
 
