@@ -24,7 +24,6 @@ public class Phone {
     private String number;
 
     @ManyToOne
-
     private Person person;
 
     @OneToOne(

@@ -11,8 +11,8 @@ import java.util.List;
 
 @Getter
 @Setter
-@ToString(exclude = "persons")
-@EqualsAndHashCode
+@ToString
+@EqualsAndHashCode(of = {"street", "number"})
 @Entity(name = "Address")
 public class Address {
 
@@ -25,8 +25,12 @@ public class Address {
     @Column(name = "number")
     private String number;
 
-    @ManyToMany(mappedBy = "addresses")
-    private List<Person> persons = new ArrayList<>();
+    @OneToMany(
+        cascade = CascadeType.ALL,
+        orphanRemoval = true,
+        mappedBy = "address"
+    )
+    private List<PersonAddress> personAddresses = new ArrayList<>();
 
 
 }

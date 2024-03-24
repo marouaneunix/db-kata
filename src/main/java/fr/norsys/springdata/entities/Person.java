@@ -13,7 +13,7 @@ import java.util.List;
 @Getter
 @Setter
 @ToString
-@EqualsAndHashCode
+@EqualsAndHashCode(of = "name")
 @Entity
 public class Person {
 
@@ -23,12 +23,6 @@ public class Person {
 
     private String name;
 
-    // FtechType.EAGER is used to load the phones when the person is loaded
-    // orphanRemoval = true is used to delete the phones when the person is deleted
-    // If you want to lazy load the phones, you can use FetchType.LAZY + @Transactional in the main class
-        // it resolves B by calling a.getB().getName() while you are still in the @Transaction.
-        // Hibernate can now make a second request to the database to fetch B,
-        // and now a.getB() is really of type B and stays that way, so you can use it outside the persistence context.
     @OneToMany(
         cascade = CascadeType.ALL,
         orphanRemoval = true,
@@ -37,8 +31,12 @@ public class Person {
     )
     private List<Phone> phones = new ArrayList<>();
 
-    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
-    private List<Address> addresses = new ArrayList<>();
+    @OneToMany(
+        cascade = CascadeType.ALL,
+        orphanRemoval = true,
+        mappedBy = "person"
+    )
+    private List<PersonAddress> personAddresses = new ArrayList<>();
 
     public void addPhone(Phone phone) {
         phones.add(phone);
@@ -51,12 +49,19 @@ public class Person {
     }
 
     public void addAddress(Address address) {
-        addresses.add(address);
-        address.getPersons().add(this);
+        PersonAddress personAddress = new PersonAddress(null, this, address);
+        this.personAddresses.add(personAddress);
+        address.getPersonAddresses().add(personAddress);
     }
 
-    public void removeAddress(Address address) {
-        addresses.remove(address);
-        address.getPersons().remove(this);
+    public void deleteAddress(Address address) {
+        PersonAddress personAddress = new PersonAddress(null, this, address);
+        address.getPersonAddresses().remove(personAddress);
+        this.personAddresses.remove(personAddress);
+        personAddress.setAddress(null);
+        personAddress.setPerson(null);
+
     }
+
+
 }

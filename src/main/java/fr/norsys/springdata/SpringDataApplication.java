@@ -4,6 +4,7 @@ import fr.norsys.springdata.entities.Address;
 import fr.norsys.springdata.entities.Person;
 import fr.norsys.springdata.entities.Phone;
 import fr.norsys.springdata.entities.PhoneDetails;
+import fr.norsys.springdata.repository.AddressRepository;
 import fr.norsys.springdata.repository.PersonRepository;
 import fr.norsys.springdata.repository.PhoneRepository;
 import jakarta.transaction.Transactional;
@@ -12,6 +13,8 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.objenesis.SpringObjenesis;
+
+import java.util.List;
 
 @SpringBootApplication
 @Transactional
@@ -23,6 +26,9 @@ public class SpringDataApplication implements CommandLineRunner {
 
     @Autowired
     private PersonRepository personRepository;
+
+    @Autowired
+    private AddressRepository addressRepository;
 
     public static void main(String[] args) {
         SpringApplication.run(SpringDataApplication.class, args);
@@ -45,23 +51,19 @@ public class SpringDataApplication implements CommandLineRunner {
         address1.setStreet("street2");
         address1.setNumber("2");
 
+        // TODO: save the address
+        addressRepository.saveAll(List.of(address, address1));
+        // TODO: save the persons
+        personRepository.saveAll(List.of(person, person1));
+        // TODO: add the address to the persons and see the magic
         person.addAddress(address);
-
-        person1.addAddress(address);
+        person.addAddress(address1);
         person1.addAddress(address1);
-
-        personRepository.save(person);
-        personRepository.save(person1);
-
-        personRepository.findAll().forEach(System.out::println);
-
-
-        person.removeAddress(address);
-        personRepository.delete(person1);
-
         /**
-         * If a bidirectional @OneToMany association performs better when removing or changing the order of child elements,
-         * the @ManyToMany relationship cannot benefit from such an optimization because the foreign key side is not in control. To overcome this limitation, the link table must be directly exposed and the @ManyToMany association split into two bidirectional @OneToMany relationships.
+         * Both the Person and the Address have a mappedBy @OneToMany side,
+         * while the PersonAddress owns the person and the address @ManyToOne associations.
+         * Because this mapping is formed out of two bidirectional associations,
+         * the helper methods are even more relevant.
          */
     }
 }
