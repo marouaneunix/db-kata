@@ -12,6 +12,8 @@ import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.utility.DockerImageName;
 
+import java.math.BigDecimal;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 
@@ -34,7 +36,7 @@ class SpringDataApplicationTests {
         @DisplayName("Pour commencer, vous désirez connaître le nombre de personnes que vous avez dans votre base de données")
         void question1() {
             // TODO : Ecrire la requête SQL
-            var query = "";
+            var query = "select count(*) from people";
             var typedQuery = entityManager.createNativeQuery(query);
             var result = (Long) typedQuery.getSingleResult();
             assertEquals(410, result);
@@ -44,7 +46,7 @@ class SpringDataApplicationTests {
         @DisplayName("Comment trouver l'email de la personne dont le nom de famille est 'Warren'")
         void question2() {
             // TODO : Ecrire la requête SQL
-            var query = "";
+            var query = "select email from people where lastName = 'Warren'";
             var expected = "aliquet.Phasellus@Nullamutnisi.org";
             var typedQuery = entityManager.createNativeQuery(query);
             var result = (String) typedQuery.getSingleResult();
@@ -55,22 +57,23 @@ class SpringDataApplicationTests {
         @DisplayName("Comment trier les donnée de la table people par ordre alphabétique croissant sur le nom de famille ?")
         void question3() {
             // TODO : Ecrire la requête SQL
-            var query = "";
+            var query = "select concat(firstName,' ',lastName) from people order by lastName asc";
             /** expected
              * first result : Macon Abbott
              * last result : Clark Zimmerman
              */
             var typedQuery = entityManager.createNativeQuery(query);
-            var result = (String) typedQuery.getSingleResult();
+            var result = typedQuery.getResultList();
             // TODO: Vérifier le résultat
-            assertEquals("Warren", result);
+            assertEquals("Macon Abbott", result.get(0));
+            assertEquals("Clark Zimmerman", result.get(result.size() - 1));
         }
 
         @Test
         @DisplayName("Il y a-t-il un moyen de limiter le nombre de résultat, par exemple en affichant uniquement les 5 premiers, toujours triés par nom de famille ?")
         void question4() {
             // TODO : Ecrire la requête SQL
-            var query = "";
+            var query = "select concat(firstName,',',lastName) from people order by lastName asc limit 5";
             /** expected
              * Caryn,Abbott
              * Macon,Abbott
@@ -79,31 +82,39 @@ class SpringDataApplicationTests {
              * Ezekiel,Aguilar
              */
             var typedQuery = entityManager.createNativeQuery(query);
-            var result = (String) typedQuery.getSingleResult();
-            assertEquals("Warren", result);
+            var result = typedQuery.getResultList();
+            assertEquals("Caryn,Abbott", result.get(0));
+            assertEquals("Macon,Abbott", result.get(1));
+            assertEquals("Nichole,Acosta", result.get(2));
+            assertEquals("Sharon,Adams", result.get(3));
+            assertEquals("Ezekiel,Aguilar", result.get(4));
         }
 
         @Test
         @DisplayName("Comment trouver les personnes qui ont un prénom ou un nom qui contient ojo ?")
         void question5() {
             // TODO : Ecrire la requête SQL
-            var query = "";
+            var query = "select concat(firstName,',',lastName) from people where firstName like '%ojo%' or lastName like '%ojo%'";
             /** expected
              Bruce,Cojote
              Chantale,Hallojo
              Shea,Nojoman
              */
             var typedQuery = entityManager.createNativeQuery(query);
-            var result = (String) typedQuery.getSingleResult();
+            var result = typedQuery.getResultList();
             // TODO: Vérifier le résultat
-            assertEquals("Warren", result);
+            assertEquals("Bruce,Cojote", result.get(0));
+            assertEquals("Chantale,Hallojo", result.get(1));
+            assertEquals("Shea,Nojoman", result.get(2));
         }
 
         @Test
         @DisplayName("Quelles sont les 5 personnes les plus jeunes ? Et les plus agées ?")
         void question6() {
             // TODO : Ecrire la requête SQL
-            var query = "";
+            var query = "(select concat(firstName,',',lastName) from people order by birthDate asc LIMIT 5) " +
+                    "union all" +
+                    "(select concat(firstName,',',lastName) from people order by birthDate desc LIMIT 5)";
             /** expected
              * Colby,William
              * Vladimir,Levine
@@ -118,65 +129,80 @@ class SpringDataApplicationTests {
              Kieran,Rocha
              */
             var typedQuery = entityManager.createNativeQuery(query);
-            var result = (String) typedQuery.getSingleResult();
+            var result = typedQuery.getResultList();
             // TODO: Vérifier le résultat
-            assertEquals("Warren", result);
+            assertEquals("Colby,William", result.get(0));
+            assertEquals("Vladimir,Levine", result.get(1));
+            assertEquals("Burton,Small", result.get(2));
+            assertEquals("Holly,Norman", result.get(3));
+            assertEquals("Laith,Baxter", result.get(4));
+            assertEquals("Levi,Nolan", result.get(5));
+            assertEquals("Wallace,Christensen", result.get(6));
+            assertEquals("Gabriel,Rivas", result.get(7));
+            assertEquals("Yvonne,Sweeney", result.get(8));
+            assertEquals("Kieran,Rocha", result.get(9));
         }
 
         @Test
         @DisplayName("Comment trouver l'age, en année, des personnes ?")
         void question7() {
             // TODO : Ecrire la requête SQL
-            var query = "";
+            var query = "select extract(year from age(birthDate)) as age from people";
             var typedQuery = entityManager.createNativeQuery(query);
-            var result = (String) typedQuery.getSingleResult();
-            assertEquals("Warren", result);
+            var result = typedQuery.getResultList();
+            BigDecimal actual = (BigDecimal) result.get(2);
+            assertEquals(24, actual.intValue());
         }
 
         @Test
         @DisplayName("Comment peut-on trouver la moyenne d'age des personnes présentes dans la table ?")
         void question8() {
             // TODO : Ecrire la requête SQL
-            var query = "";
+            var query = "select round(avg(extract(year from age(birthDate))),0) as average_age from people";
             var typedQuery = entityManager.createNativeQuery(query);
-            var result = (String) typedQuery.getSingleResult();
-            assertEquals("Warren", result);
+            var result = typedQuery.getSingleResult();
+            BigDecimal actual = (BigDecimal) result;
+            assertEquals(29, actual.intValue());
         }
 
         @Test
         @DisplayName("Votre designer travail sur les cartes de membre et il a besoin de savoir quelle est la personne avec le plus long prénom et le plus long nom.")
         void question9() {
             // TODO : Ecrire la requête SQL
-            var query = "";
-            /** expected
-             * Clementine,Carey
+            var query = "(SELECT firstName FROM people ORDER BY LENGTH(firstName) DESC LIMIT 1)" +
+                    "UNION ALL" +
+                    "(SELECT lastName FROM people ORDER BY LENGTH(lastName) DESC LIMIT 1)";
+            /* Clementine,Carey
              * Wallace,Christensen
              */
             var typedQuery = entityManager.createNativeQuery(query);
-            var result = (String) typedQuery.getSingleResult();
-            assertEquals("Warren", result);
+            var result = typedQuery.getResultList();
+            assertEquals("Clementine", result.get(0));
+            assertEquals("Christensen", result.get(1));
         }
 
         @Test
         @DisplayName("Ne sachant encore pas exactement la manière dont le layout des cartes de membres sera organisé, il aimerait également savoir qui sont les 3 personnes qui ont, mis ensemble, la pair nom + prénom la plus longue.")
         void question10() {
             // TODO : Ecrire la requête SQL
-            var query = "";
+            var query = "select concat(firstName,',',lastName) from people order by length(firstName || ' ' || lastName) desc LIMIT 3";
             /** expected
              * Wallace,Christensen
              * Cheyenne,Pennington
              * Isabelle,Singleton
              */
             var typedQuery = entityManager.createNativeQuery(query);
-            var result = (String) typedQuery.getSingleResult();
-            assertEquals("Warren", result);
+            var result = typedQuery.getResultList();
+            assertEquals("Wallace,Christensen", result.get(0));
+            assertEquals("Cheyenne,Pennington", result.get(1));
+            assertEquals("Isabelle,Singleton", result.get(2));
         }
 
         @Test
         @DisplayName("Il y a-t-il des doublons dans la table people")
         void question11() {
             // TODO : Ecrire la requête SQL
-            var query = "";
+            var query = "select firstName, lastName, count(*) as count from people group by firstName, lastName having count(*) > 1";
             /** expected
              * Mara,Rollins,2
              * Rahim,Nieves,2
@@ -191,7 +217,7 @@ class SpringDataApplicationTests {
              */
             var typedQuery = entityManager.createNativeQuery(query);
             var result = typedQuery.getResultList();
-            assertEquals(3, result.size());
+            assertEquals(10, result.size());
         }
 
 
@@ -204,53 +230,54 @@ class SpringDataApplicationTests {
         @DisplayName("Pour l'ouverture, vous désirez lister tous les membres de plus de 18 ans, et de moins de 60 ans, qui ont une addresse email valide")
         void question12() {
             // TODO : Ecrire la requête SQL
-            var query = "";
+            var query = "select * from people where extract(year from age(birthDate)) between 18 and 60 and email SIMILAR to '%@%.%'";;
             // expected : 404 records
             var typedQuery = entityManager.createNativeQuery(query);
-            var result = (Long) typedQuery.getSingleResult();
-            assertEquals(0, result);
+            var result = typedQuery.getResultList();
+            assertEquals(404, result.size());
         }
 
         @Test
         @DisplayName("Pour faciliter la lecture vous ajoutez une colonne age dans le résultat de votre requête")
         void question13() {
             // TODO : Ecrire la requête SQL
-            var query = "";
+            var query = "select extract(year from current_date) - extract(year from birthdate),* from PEOPLE where DATE_PART('year', age(current_date, birthdate)) > 18 " +
+                    "AND DATE_PART('year', age(current_date, birthdate)) < 60 and email like '%@%'";
             /** expected
              * 404 records
              */
             var typedQuery = entityManager.createNativeQuery(query);
             var result = typedQuery.getResultList();
             // TODO : Vérifier le résultat
-            assertEquals(410, result.size());
+            assertEquals(404, result.size());
         }
 
         @Test
         @DisplayName("Avec ces membres, vous désirez faire une liste sous le format suivant Prénom Nom <email@provider.com>; afin de pouvoir la copier/coller dans votre client email")
         void question14() {
             // TODO : Ecrire la requête SQL
-            var query = "";
+            var query = "select concat(firstname,' ',lastname,' <',email,'>') from PEOPLE";
             /** expected
              * ex: Dawn Powell <nec@eueuismodac.com>
              */
             var typedQuery = entityManager.createNativeQuery(query);
             var result = typedQuery.getResultList();
             // TODO : Vérifier le résultat
-            assertEquals(410, result.size());
+            assertEquals("Dawn Powell <nec@eueuismodac.com>", result.get(0).toString());
         }
 
         @Test
         @DisplayName("Avec les informations contenues dans la table people (sans jointures), pourrait-on approximer le nombre de personnes habitant en Suisse ?")
         void question15() {
             // TODO : Ecrire la requête SQL
-            var query = "";
+            var query = "select * from PEOPLE where email like '%.ch'";
             /** expected
              * 70
              */
             var typedQuery = entityManager.createNativeQuery(query);
             var result = typedQuery.getResultList();
             // TODO : Vérifier le résultat
-            assertEquals(410, result.size());
+            assertEquals(70, result.size());
         }
     }
 
