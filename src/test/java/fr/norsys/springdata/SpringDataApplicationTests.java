@@ -6,25 +6,15 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
-import org.testcontainers.containers.PostgreSQLContainer;
-import org.testcontainers.junit.jupiter.Container;
-import org.testcontainers.junit.jupiter.Testcontainers;
-import org.testcontainers.utility.DockerImageName;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 
-@Testcontainers
 @SpringBootTest
 class SpringDataApplicationTests {
 
     @Autowired
     EntityManager entityManager;
-
-    @Container
-    @ServiceConnection
-    private static final PostgreSQLContainer<?> postgresContainer = new PostgreSQLContainer<>(DockerImageName.parse("postgres:latest"));
 
 
     @Nested
@@ -34,7 +24,7 @@ class SpringDataApplicationTests {
         @DisplayName("Pour commencer, vous désirez connaître le nombre de personnes que vous avez dans votre base de données")
         void question1() {
             // TODO : Ecrire la requête SQL
-            var query = "";
+            var query = "select count(*) from people";
             var typedQuery = entityManager.createNativeQuery(query);
             var result = (Long) typedQuery.getSingleResult();
             assertEquals(410, result);
